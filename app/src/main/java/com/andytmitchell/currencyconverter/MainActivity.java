@@ -2,10 +2,18 @@ package com.andytmitchell.currencyconverter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -16,45 +24,80 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
-
+    private double rate = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Spinner spinnerHomeCurrency = findViewById(R.id.spinnerHomeCurrency);
-        final Spinner spinnerTargetCurrency = findViewById(R.id.spinnerTargetCurrency);
+        AutoCompleteTextView autoCompleteTargetCurrency = findViewById(R.id.autoCompleteTargetCurrency);
+        AutoCompleteTextView autoCompleteHomeCurrency = findViewById(R.id.autoCompleteHomeCurrency);
+        EditText ammountEditText = findViewById(R.id.editTextAmount);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.currency_array, android.R.layout.simple_spinner_item);
+                R.array.currency_array, android.R.layout.simple_dropdown_item_1line);
 
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        spinnerHomeCurrency.setAdapter(adapter);
-        spinnerTargetCurrency.setAdapter(adapter);
-
-        setSpinnerToValue(spinnerHomeCurrency, "GBP");
-        setSpinnerToValue(spinnerTargetCurrency, "EUR");
+        autoCompleteHomeCurrency.setAdapter(adapter);
+        autoCompleteTargetCurrency.setAdapter(adapter);
 
         getCurrencyRate("GBP", "EUR");
-        AdapterView.OnItemSelectedListener currencySelectedListener = new AdapterView.OnItemSelectedListener() {
+        autoCompleteHomeCurrency.setText(adapter.getItem(0));
+        autoCompleteTargetCurrency.setText(adapter.getItem(1));
+        autoCompleteHomeCurrency.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String homeCurrency = spinnerHomeCurrency.getSelectedItem().toString();
-                String targetCurrency = spinnerTargetCurrency.getSelectedItem().toString();
-                getCurrencyRate(homeCurrency,targetCurrency);
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedCurrency = parent.getItemAtPosition(position).toString().substring(0,3);
+                String targetCurrency = autoCompleteTargetCurrency.getText().toString().substring(0,3);
+                getCurrencyRate(selectedCurrency, targetCurrency);
+            }
+        });
+
+        autoCompleteHomeCurrency.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    autoCompleteHomeCurrency.showDropDown();
+                }
+            }
+        });
+
+        autoCompleteTargetCurrency.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selectedCurrency = parent.getItemAtPosition(position).toString().substring(0,3);
+                String homeCurrency = autoCompleteHomeCurrency.getText().toString().substring(0,3);
+                getCurrencyRate(homeCurrency, selectedCurrency);
+            }
+        });
+
+        autoCompleteTargetCurrency.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    autoCompleteTargetCurrency.showDropDown();
+                }
+            }
+        });
+
+        ammountEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
 
             }
-        };
 
-        spinnerHomeCurrency.setOnItemSelectedListener(currencySelectedListener);
-        spinnerTargetCurrency.setOnItemSelectedListener(currencySelectedListener);
+            @Override
+            public void afterTextChanged(Editable s) {
+                calculateConversion();
+            }
+        });
     }
 
     private void getCurrencyRate(final String homeCurrency, final String targetCurrency) {
@@ -79,17 +122,14 @@ public class MainActivity extends AppCompatActivity {
 
                     JSONObject jsonResponse = new JSONObject(response.toString());
                     JSONObject rates = jsonResponse.getJSONObject("rates");
-                    final double rate = rates.getDouble(targetCurrency);
+                    rate = rates.getDouble(targetCurrency);
 
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            TextView textView = findViewById(R.id.textView);
-                            textView.setText(homeCurrency + " to " + targetCurrency + ": " + rate);
+                            calculateConversion();
                         }
                     });
-
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -105,5 +145,47 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) spinner.getAdapter();
         int position = adapter.getPosition(value);
         spinner.setSelection(position);
+    }
+
+    private void calculateConversion() {
+        EditText conversion = findViewById(R.id.editTextConversion);
+        EditText amountEv = findViewById(R.id.editTextAmount);
+        try {
+            double amount = Double.parseDouble(amountEv.getText().toString());
+            double result = amount / rate;
+            // Format the result to 2 decimal places and pad with zeros if necessary
+            String formattedResult = String.format(Locale.getDefault(), "%.2f", result);
+            conversion.setText(formattedResult);
+        } catch (NumberFormatException e) {
+
+            conversion.setText("-");
+        }
+    }
+
+    private void saveCurrencies(String homeCurrency, String targetCurrency) {
+        SharedPreferences sharedPref = getSharedPreferences("CurrencyConverterPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("HomeCurrency", homeCurrency);
+        editor.putString("TargetCurrency", targetCurrency);
+
+        editor.apply();
+    }
+
+    private void saveRates(String ratesJson) {
+        SharedPreferences sharedPref = getSharedPreferences("CurrencyConverterPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("Rates", ratesJson);
+        editor.apply();
+    }
+
+    private JSONObject loadRates() {
+        SharedPreferences sharedPref = getSharedPreferences("CurrencyConverterPreferences", Context.MODE_PRIVATE);
+        String ratesJson = sharedPref.getString("Rates", "{}"); // Default to an empty JSON object
+        try {
+            return new JSONObject(ratesJson);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
