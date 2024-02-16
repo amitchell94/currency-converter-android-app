@@ -42,53 +42,73 @@
             android:layout_height="wrap_content"
             android:text="EUR"
             android:textSize="32dp"
-            app:layout_constraintBottom_toBottomOf="@id/editTextAmount"
-            app:layout_constraintTop_toTopOf="@id/editTextAmount"
+            app:layout_constraintBottom_toBottomOf="@id/textInputLayoutAmount"
+            app:layout_constraintTop_toTopOf="@id/textInputLayoutAmount"
             android:layout_marginLeft="50dp"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <EditText
-            android:id="@+id/editTextAmount"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutAmount"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@android:color/darker_gray"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Enter Amount"
-            android:text="1.00"
-            android:textSize="32dp"
-            android:layout_marginRight="50dp"
-            android:textAlignment="center"
-            android:inputType="numberDecimal"
+            android:layout_marginTop="32dp"
             app:layout_constraintTop_toBottomOf="@id/titleText"
             app:layout_constraintStart_toEndOf="@id/labelAmount"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="32dp"
-            android:selectAllOnFocus="true"/>
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="50dp"
+            app:hintEnabled="true"
+            android:hint="Enter Amount">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="1.00"
+                android:textSize="32dp"
+                android:textAlignment="center"
+                android:inputType="numberDecimal"
+                android:selectAllOnFocus="true" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
             android:id="@+id/labelConversion"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="GBP"
-            android:textSize="26dp"
-            app:layout_constraintBottom_toBottomOf="@id/editTextConversion"
-            app:layout_constraintTop_toTopOf="@id/editTextConversion"
+            android:textSize="32dp"
             android:layout_marginLeft="50dp"
+            app:layout_constraintBottom_toBottomOf="@id/textInputLayoutConversion"
+            app:layout_constraintTop_toTopOf="@id/textInputLayoutConversion"
+            app:layout_constraintEnd_toEndOf="@id/labelAmount"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <EditText
-            android:id="@+id/editTextConversion"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutConversion"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@android:color/darker_gray"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="26dp"
-            android:layout_marginRight="50dp"
-            android:textAlignment="center"
-            android:inputType="none"
-            android:enabled="false"
-            android:textColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/editTextAmount"
-            app:layout_constraintStart_toEndOf="@id/labelAmount"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="32dp"/>
+            android:layout_marginTop="32dp"
+            app:boxBackgroundColor="#EFEFEF"
+            app:layout_constraintTop_toBottomOf="@id/textInputLayoutAmount"
+            app:layout_constraintStart_toStartOf="@id/textInputLayoutAmount"
+            app:layout_constraintEnd_toEndOf="@id/textInputLayoutAmount">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextConversion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textSize="32dp"
+                android:textAlignment="center"
+                android:inputType="none"
+                android:enabled="false"
+                android:textColor="@color/black"
+                android:selectAllOnFocus="true" />
+        </com.google.android.material.textfield.TextInputLayout>
         <TextView
             android:id="@+id/lastUpdated"
             android:layout_width="wrap_content"
@@ -96,7 +116,7 @@
             android:text="Last Updated: -"
             android:textSize="14dp"
             android:layout_marginTop="40dp"
-            app:layout_constraintTop_toBottomOf="@id/editTextConversion"
+            app:layout_constraintTop_toBottomOf="@id/textInputLayoutConversion"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -106,7 +126,7 @@
             android:background="#D8D8D8"
             android:layout_marginTop="100dp"
             android:layout_marginHorizontal="25dp"
-            app:layout_constraintTop_toBottomOf="@+id/editTextConversion"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutConversion"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -114,57 +134,70 @@
             android:id="@+id/labelTargetCurrency"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Foreign Curr."
+            android:text="Local Currency"
             android:textSize="18dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="20dp"
-            app:layout_constraintBottom_toBottomOf="@id/autoCompleteTargetCurrency"
-            app:layout_constraintTop_toTopOf="@id/autoCompleteTargetCurrency"
+            app:layout_constraintBottom_toBottomOf="@id/textInputLayoutTargetCurrency"
+            app:layout_constraintTop_toTopOf="@id/textInputLayoutTargetCurrency"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <AutoCompleteTextView
-            android:id="@+id/autoCompleteTargetCurrency"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutTargetCurrency"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Select Home Currency"
-            android:inputType="text"
-            app:layout_constraintTop_toBottomOf="@id/editTextConversion"
+            android:layout_marginTop="130dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="10dp"
             app:layout_constraintStart_toEndOf="@id/labelTargetCurrency"
             app:layout_constraintEnd_toEndOf="parent"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="130dp"
-            android:selectAllOnFocus="true"/>
+            app:layout_constraintTop_toBottomOf="@id/textInputLayoutConversion">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTargetCurrency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:focusable="true"
+                android:ellipsize="end"
+                android:focusableInTouchMode="true"
+                android:selectAllOnFocus="true"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <TextView
             android:id="@+id/labelHomeCurrency"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Home Curr."
+            android:text="Home Currency"
             android:textSize="18dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="20dp"
-            app:layout_constraintBottom_toBottomOf="@id/autoCompleteHomeCurrency"
-            app:layout_constraintTop_toTopOf="@id/autoCompleteHomeCurrency"
+            app:layout_constraintBottom_toBottomOf="@id/textInputLayoutHomeCurrency"
+            app:layout_constraintTop_toTopOf="@id/textInputLayoutHomeCurrency"
             app:layout_constraintStart_toStartOf="parent"/>
 
-        <AutoCompleteTextView
-            android:id="@+id/autoCompleteHomeCurrency"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutHomeCurrency"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Select Target Currency"
-            android:inputType="text"
-            app:layout_constraintTop_toBottomOf="@id/autoCompleteTargetCurrency"
-            app:layout_constraintStart_toEndOf="@id/labelTargetCurrency"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:layout_marginTop="32dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="10dp"
-            android:selectAllOnFocus="true"/>
+            android:layout_marginTop="10dp"
+            app:layout_constraintStart_toStartOf="@id/textInputLayoutTargetCurrency"
+            app:layout_constraintEnd_toEndOf="@id/textInputLayoutTargetCurrency"
+            app:layout_constraintTop_toBottomOf="@id/textInputLayoutTargetCurrency">
+
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteHomeCurrency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:ellipsize="end"
+                android:selectAllOnFocus="true"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
