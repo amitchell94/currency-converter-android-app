@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CustomAlertDialogStyle" parent="Theme.MaterialComponents.Light.Dialog">
+        <!-- Customize your dialog theme here -->
+        <item name="background">@drawable/dialog_background</item>
+        <!-- Add other dialog style customizations here -->
+    </style>
+</resources>

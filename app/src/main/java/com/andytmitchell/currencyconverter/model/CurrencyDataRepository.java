@@ -1,5 +1,7 @@
 package com.andytmitchell.currencyconverter.model;
 
+import android.content.Context;
+
 import com.andytmitchell.currencyconverter.controller.CurrencyRateService;
 
 import org.json.JSONObject;
@@ -15,7 +17,7 @@ public interface CurrencyDataRepository {
 
     void saveConversionRates(JSONObject ratesJson);
 
-    void getConversionRates(String homeCurrency,boolean apiCallRequired, CurrencyRateService.CurrencyRateCallback callback);
+    void getConversionRates(String homeCurrency,boolean apiCallRequired, Context context, CurrencyRateService.CurrencyRateCallback callback);
 
     void saveLastFetchTime(long lastFetchTime);
 

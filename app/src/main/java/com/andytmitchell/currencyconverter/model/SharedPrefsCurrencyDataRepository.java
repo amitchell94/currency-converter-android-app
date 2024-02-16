@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.andytmitchell.currencyconverter.Constants;
 import com.andytmitchell.currencyconverter.controller.CurrencyRateService;
+import com.andytmitchell.currencyconverter.controller.NetworkUtil;
 
 import org.json.JSONObject;
 
@@ -50,19 +51,13 @@ public class SharedPrefsCurrencyDataRepository implements CurrencyDataRepository
     }
 
     @Override
-    public void getConversionRates(final String homeCurrency, boolean apiCallRequired, final CurrencyRateService.CurrencyRateCallback callback) {
+    public void getConversionRates(final String homeCurrency, boolean apiCallRequired, Context context, final CurrencyRateService.CurrencyRateCallback callback) {
         String ratesJson = sharedPref.getString(Constants.RATES_REFERENCE_KEY, null);
 
         long lastFetchTime = getLastUpdated();
         long currentTime = System.currentTimeMillis();
 
-        if (currentTime - lastFetchTime < Constants.CURRENCY_RATE_FRESHNESS_THRESHOLD && !apiCallRequired) {
-            try {
-                callback.onRateFetched(new JSONObject(ratesJson));
-            } catch (Exception e) {
-                callback.onError(e);
-            }
-        } else {
+        if  (NetworkUtil.isNetworkConnected(context) && ((currentTime - lastFetchTime > Constants.CURRENCY_RATE_FRESHNESS_THRESHOLD  || apiCallRequired))) {
             currencyRateService.fetchCurrencyRate(homeCurrency.substring(0, 3), new CurrencyRateService.CurrencyRateCallback() {
                 @Override
                 public void onRateFetched(JSONObject response) {
@@ -81,6 +76,12 @@ public class SharedPrefsCurrencyDataRepository implements CurrencyDataRepository
                     callback.onError(e);
                 }
             });
+        } else {
+            try {
+                callback.onRateFetched(new JSONObject(ratesJson));
+            } catch (Exception e) {
+                callback.onError(e);
+            }
         }
     }
 
