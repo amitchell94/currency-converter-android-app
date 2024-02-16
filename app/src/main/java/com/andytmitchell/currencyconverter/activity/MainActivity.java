@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             homeCurr = (String) adapterHome.getItem(0);
             targCurr = (String) adapterTarget.getItem(1);
             currencyDataRepository.saveHomeCurrency(homeCurr);
-            currencyDataRepository.saveHomeCurrency(targCurr);
+            currencyDataRepository.saveTargetCurrency(targCurr);
             apiCallRequired = true;
         }
 
