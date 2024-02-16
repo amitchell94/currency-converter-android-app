@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
-        tools:context=".MainActivity">
+        tools:context=".activity.MainActivity">
 
         <TextView
             android:id="@+id/titleText"
@@ -71,21 +71,33 @@
             android:id="@+id/editTextConversion"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="1.00"
+            android:text="-"
             android:textSize="26dp"
             android:layout_marginRight="50dp"
             android:textAlignment="center"
             android:inputType="none"
+            android:enabled="false"
+            android:textColor="@color/black"
             app:layout_constraintTop_toBottomOf="@id/editTextAmount"
             app:layout_constraintStart_toEndOf="@id/labelAmount"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="32dp"/>
+        <TextView
+            android:id="@+id/lastUpdated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Last Updated: -"
+            android:textSize="14dp"
+            android:layout_marginTop="40dp"
+            app:layout_constraintTop_toBottomOf="@id/editTextConversion"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#D8D8D8"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="100dp"
             android:layout_marginHorizontal="25dp"
             app:layout_constraintTop_toBottomOf="@+id/editTextConversion"
             app:layout_constraintStart_toStartOf="parent"
@@ -116,7 +128,7 @@
             android:focusableInTouchMode="true"
             android:layout_marginRight="10dp"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="130dp"
             android:selectAllOnFocus="true"/>
 
         <TextView
