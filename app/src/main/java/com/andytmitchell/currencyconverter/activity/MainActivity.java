@@ -52,24 +52,18 @@ public class MainActivity extends AppCompatActivity {
         String homeCurr = currencyDataRepository.getHomeCurrency();
         String targCurr = currencyDataRepository.getTargetCurrency();
 
-        boolean apiCallRequired = false;
         if (homeCurr.equals("")) {
-            showDialog();
-            apiCallRequired = true;
-        }
-
-        if (targCurr.equals("")) {
-            //Set a default value
+            //Set a default target
             targCurr = (String) adapterTarget.getItem(1);
             currencyDataRepository.saveTargetCurrency(targCurr);
-            apiCallRequired = true;
+
+            showDialog();
+        } else {
+            updateHomeCurrencyLabel(homeCurr);
+            updateRate(false);
         }
-
-        autoCompleteTargetCurrency.setText(targCurr);
         updateTargetCurrencyLabel(targCurr);
-        updateHomeCurrencyLabel(homeCurr);
-
-        updateRate(apiCallRequired);
+        autoCompleteTargetCurrency.setText(targCurr);
 
         autoCompleteTargetCurrency.setOnItemClickListener((parent, view, position, id) -> {
             String selectedCurrency = parent.getItemAtPosition(position).toString();
@@ -167,6 +161,13 @@ public class MainActivity extends AppCompatActivity {
         label.setText(targetCurrency.substring(0,3));
     }
 
+    public void handleHomeCurrencyChange(String homeCurrency) {
+        updateHomeCurrencyLabel(homeCurrency);
+        currencyDataRepository.saveHomeCurrency(homeCurrency);
+
+        updateRate(true);
+    }
+
     public void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialogStyle);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -190,9 +191,7 @@ public class MainActivity extends AppCompatActivity {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 String selectedCurrency = autoCompleteTextViewHomeCurr.getText().toString();
                 if (adapter.getPosition(selectedCurrency) != -1) {
-                    updateHomeCurrencyLabel(selectedCurrency);
-
-                    currencyDataRepository.saveHomeCurrency(selectedCurrency);
+                    handleHomeCurrencyChange(selectedCurrency);
                     dialog.dismiss();
                 }
                 return true;
@@ -212,9 +211,7 @@ public class MainActivity extends AppCompatActivity {
         buttonDialogSubmit.setOnClickListener(view -> {
             String selectedCurrency = autoCompleteTextViewHomeCurr.getText().toString();
             if (adapter.getPosition(selectedCurrency) != -1) {
-                updateHomeCurrencyLabel(selectedCurrency);
-
-                currencyDataRepository.saveHomeCurrency(selectedCurrency);
+                handleHomeCurrencyChange(selectedCurrency);
                 dialog.dismiss();
             }
         });

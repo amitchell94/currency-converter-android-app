@@ -68,22 +68,36 @@ public class SharedPrefsCurrencyDataRepository implements CurrencyDataRepository
                         callback.onRateFetched(rates);
                     } catch (Exception e) {
                         e.printStackTrace();
+                        try {
+                            //If we fail, just try to get the ones we last stored.
+                            callback.onRateFetched(new JSONObject(ratesJson));
+                        } catch (Exception ex) {
+                            callback.onError(ex);
+                        }
                     }
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    callback.onError(e);
+                    e.printStackTrace();
+                    try {
+                        //If we fail, just try to get the ones we last stored.
+                        callback.onRateFetched(new JSONObject(ratesJson));
+                    } catch (Exception ex) {
+                        callback.onError(ex);
+                    }
                 }
             });
         } else {
             try {
+                //If we updated recently, just try to get the ones we last stored.
                 callback.onRateFetched(new JSONObject(ratesJson));
             } catch (Exception e) {
                 callback.onError(e);
             }
         }
     }
+
 
     @Override
     public void saveLastFetchTime(long lastFetchTime) {
