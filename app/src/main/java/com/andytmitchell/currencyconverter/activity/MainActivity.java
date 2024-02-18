@@ -3,17 +3,17 @@ package com.andytmitchell.currencyconverter.activity;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -96,6 +96,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        TextView amountLabelTextView = findViewById(R.id.labelAmount);
+        amountLabelTextView.setOnClickListener(v -> autoCompleteTargetCurrency.requestFocus());
+
         Button changeHomeCurrencyBtn = findViewById(R.id.changeCurrencyBtn);
         changeHomeCurrencyBtn.setOnClickListener(v -> showDialog());
 
@@ -161,13 +164,6 @@ public class MainActivity extends AppCompatActivity {
         label.setText(targetCurrency.substring(0,3));
     }
 
-    public void handleHomeCurrencyChange(String homeCurrency) {
-        updateHomeCurrencyLabel(homeCurrency);
-        currencyDataRepository.saveHomeCurrency(homeCurrency);
-
-        updateRate(true);
-    }
-
     public void showDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomAlertDialogStyle);
         LayoutInflater inflater = this.getLayoutInflater();
@@ -175,46 +171,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
 
-        final AutoCompleteTextView autoCompleteTextViewHomeCurr = dialogView.findViewById(R.id.autoCompleteHomeCurrencyDialog);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.currency_array, android.R.layout.simple_dropdown_item_1line);
-
-        autoCompleteTextViewHomeCurr.setAdapter(adapter);
-
-        autoCompleteTextViewHomeCurr.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus) {
-                autoCompleteTextViewHomeCurr.showDropDown();
-            }
-        });
-
-        autoCompleteTextViewHomeCurr.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_DONE) {
-                String selectedCurrency = autoCompleteTextViewHomeCurr.getText().toString();
-                if (adapter.getPosition(selectedCurrency) != -1) {
-                    handleHomeCurrencyChange(selectedCurrency);
-                    dialog.dismiss();
-                }
-                return true;
-            }
-            return false;
-        });
-
-        String homeCurr = currencyDataRepository.getHomeCurrency();
-
-        if (homeCurr.equals("")) {
-            homeCurr = (String) adapter.getItem(0);
-        }
-        autoCompleteTextViewHomeCurr.setText(homeCurr);
-
-        Button buttonDialogSubmit = dialogView.findViewById(R.id.buttonDialogSubmit);
-
-        buttonDialogSubmit.setOnClickListener(view -> {
-            String selectedCurrency = autoCompleteTextViewHomeCurr.getText().toString();
-            if (adapter.getPosition(selectedCurrency) != -1) {
-                handleHomeCurrencyChange(selectedCurrency);
-                dialog.dismiss();
-            }
-        });
+        configureDialogUiComponents(dialog, dialogView);
 
         dialog.setCancelable(false);
         dialog.show();
@@ -230,5 +187,59 @@ public class MainActivity extends AppCompatActivity {
         int marginSide = (int) (32 * getResources().getDisplayMetrics().density);
         int dialogWidth = displayWidth - 2 * marginSide; // Subtract margins from both sides
         window.setLayout(dialogWidth, WindowManager.LayoutParams.WRAP_CONTENT);
+    }
+
+    private void configureDialogUiComponents(AlertDialog dialog, View dialogView) {
+
+        final AutoCompleteTextView autoCompleteTextViewHomeCurr = dialogView.findViewById(R.id.autoCompleteHomeCurrencyDialog);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.currency_array, android.R.layout.simple_dropdown_item_1line);
+
+        autoCompleteTextViewHomeCurr.setAdapter(adapter);
+
+        autoCompleteTextViewHomeCurr.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                autoCompleteTextViewHomeCurr.showDropDown();
+            }
+        });
+
+        autoCompleteTextViewHomeCurr.setOnItemClickListener((parent, view, position, id) -> autoCompleteTextViewHomeCurr.setTextColor(Color.BLACK));
+
+        autoCompleteTextViewHomeCurr.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                handleSetHomeCurrency(adapter, dialog, autoCompleteTextViewHomeCurr);
+                return true;
+            }
+            return false;
+        });
+
+        String homeCurr = currencyDataRepository.getHomeCurrency();
+
+        if (homeCurr.equals("")) {
+            homeCurr = (String) adapter.getItem(0);
+        }
+        autoCompleteTextViewHomeCurr.setText(homeCurr);
+        Button buttonDialogSubmit = dialogView.findViewById(R.id.buttonDialogSubmit);
+
+        buttonDialogSubmit.setOnClickListener(view -> {
+            handleSetHomeCurrency(adapter, dialog, autoCompleteTextViewHomeCurr);
+        });
+    }
+
+    private void handleSetHomeCurrency (ArrayAdapter<CharSequence> adapter, AlertDialog dialog, AutoCompleteTextView autoCompleteTextView) {
+        String selectedCurrency = autoCompleteTextView.getText().toString();
+        if (adapter.getPosition(selectedCurrency) != -1) {
+            updateHomeCurrencyLabel(selectedCurrency);
+            currencyDataRepository.saveHomeCurrency(selectedCurrency);
+
+            updateRate(true);
+
+            dialog.dismiss();
+
+            EditText ammountEditText = findViewById(R.id.editTextAmount);
+            ammountEditText.requestFocus();
+        } else {
+            autoCompleteTextView.setTextColor(Color.RED);
+        }
     }
 }
